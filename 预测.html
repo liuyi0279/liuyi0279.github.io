@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f14">
+<link rel="manifest" href="manifest.json">
+<title>预测 · 雅思备考仪表盘</title>
+<script>if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js');}</script>
+<style>
+  :root {--bg:#0f0f14;--card:#1a1a24;--border:#2a2a3a;--text:#d0d0d8;--accent:#f0c040;--red:#e05555;--green:#55b880;--blue:#5599cc;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.8;font-size:15px}
+  .nav{position:sticky;top:0;z-index:100;background:#0a0a10;border-bottom:1px solid var(--border);padding:10px 0;text-align:center}
+  .nav a{color:var(--text);text-decoration:none;padding:6px 14px;margin:0 2px;border-radius:4px;font-size:13px;transition:all .2s}
+  .nav a:hover,.nav a.active{background:#2a2a3a;color:var(--accent)}
+  .container{max-width:900px;margin:0 auto;padding:30px 20px 60px}
+  h1{font-size:2em;color:var(--accent);text-align:center;margin-bottom:8px}
+  h1.sub{font-size:1em;color:#888;font-weight:normal;margin-bottom:30px}
+  h2{font-size:1.4em;color:var(--accent);border-left:3px solid var(--accent);padding-left:12px;margin:40px 0 16px}
+  h3{font-size:1.1em;color:#ccc;margin:24px 0 10px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin:16px 0}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.grid-2{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  th{background:#222230;color:var(--accent);padding:10px 12px;text-align:left}
+  td{padding:8px 12px;border-bottom:1px solid #1a1a28}
+  tr:hover td{background:#1e1e2c}
+  .tag{display:inline-block;padding:2px 10px;border-radius:10px;font-size:12px;font-weight:600;margin-right:4px}
+  .tag-red{background:#3a1a1a;color:var(--red)}.tag-green{background:#1a3a1a;color:var(--green)}.tag-yellow{background:#3a3a1a;color:var(--accent)}.tag-purple{background:#2a1a3a;color:#9966cc}
+  .tip-box{border-left:4px solid var(--accent);padding:14px 18px;margin:12px 0;background:#14141e;border-radius:0 6px 6px 0}
+  .tip-box.red{border-left-color:var(--red)}
+  .highlight{background:#2a2a10;padding:1px 6px;border-radius:3px;color:var(--accent)}
+  .danger{background:#3a1a1a;padding:1px 6px;border-radius:3px;color:var(--red)}
+  ul,ol{padding-left:20px}li{margin:4px 0}
+  .btn{display:inline-block;padding:10px 24px;background:var(--accent);color:#000;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px}
+  hr{border:none;border-top:1px solid var(--border);margin:30px 0}
+  .countdown{text-align:center;font-size:3em;color:var(--accent);font-weight:700;padding:20px}
+  .countdown span{font-size:.4em;color:#888;display:block}
+  .prediction-badge{display:inline-block;padding:6px 16px;border-radius:20px;font-weight:700;font-size:13px;margin:4px}
+  .prediction-badge.hot{background:#3a1a1a;color:var(--red)}.prediction-badge.warm{background:#3a3a1a;color:var(--accent)}.prediction-badge.cool{background:#1a2a3a;color:var(--blue)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">🏠 仪表盘</a>
+  <a href="听力邪修手册.html">👂 听力</a>
+  <a href="阅读邪修手册.html">📖 阅读</a>
+  <a href="口语邪修手册.html">🗣️ 口语</a>
+  <a href="写作邪修手册.html">✍️ 写作</a>
+  <a href="词汇攻略.html">📝 词汇</a>
+  <a href="邪修技巧总汇.html">⚡ 邪修</a>
+  <a href="预测.html" class="active">🔮 预测</a>
+</nav>
+
+<div class="container">
+
+<h1>🔮 11月21日雅思预测</h1>
+<h1 class="sub">2026年11月21日 · 中国大陆A类 · 历史题库规律 + 常青话题</h1>
+
+<div class="countdown">
+  距考试：<span id="pdDays" style="display:inline;font-size:.9em;color:var(--accent);">--</span>天
+  <span>2026年11月21日 · 中国大陆A类纸笔</span>
+</div>
+
+<div class="card" style="background:#1a1a10;border-color:#3a3a10;">
+  <p style="color:var(--accent);text-align:center;"><strong>⚠️ 声明：</strong>预测基于历史题库规律及第三方平台数据（新东方、新航道、环球教育等），非官方发布。作为重点备考方向参考，不替代全面复习。</p>
+</div>
+
+<!-- ==================== 口语预测 ==================== -->
+<h2>🗣️ 口语预测（9-12月 · 换题季）</h2>
+
+<div class="tip-box red">
+  <p><strong>📌 关于 9-12 月新题的重要提醒：</strong>雅思口语每年 1/5/9 月换题，9-12 月的<strong>新题要到 9 月初才陆续放出，9 月 15 日后题库才稳定</strong>。你 11 月考，届时题库已完全稳定，可以放心依赖。<strong>9 月中之后，去雅思哥 / 新东方下载最新完整题库，把本页没覆盖的新题补进来。</strong></p>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">Part 1 必考（3 题 100% 命中，永久不变）</h3>
+  <table>
+    <tr><td><strong>Work or Study</strong></td><td>你的身份 + 学什么 / 做什么 + 感受</td></tr>
+    <tr><td><strong>Hometown</strong></td><td>来自哪里 + 城市特色 + 你喜欢 / 不喜欢什么</td></tr>
+    <tr><td><strong>Accommodation</strong></td><td>住哪里 + 房子怎么样 + 最喜欢哪个角落</td></tr>
+  </table>
+  <p style="margin-top:8px;"><span class="tag tag-red">邪修</span> 这 3 道题的答案练到<strong>不假思索脱口而出</strong>。前 3 题决定你整场口语的印象分基调。</p>
+</div>
+
+<div class="card">
+  <h3>Part 1 常青题清单（换季也大概率保留，现在就能练）</h3>
+  <p style="font-size:13px;color:#888;margin-bottom:8px;">这些话题在每一季都高频出现，属于"安全区"。先练这些，等 9 月新题放出再补。</p>
+  <table>
+    <tr><th style="width:20%;">类别</th><th>常青话题</th></tr>
+    <tr><td>🏠 生活类</td><td>Hobbies / Free time · Food / Cooking · Weather / Seasons · Clothes / Shopping · Transport / Travel</td></tr>
+    <tr><td>🎵 娱乐类</td><td>Music · Movies / TV · Sports / Exercise · Reading / Books</td></tr>
+    <tr><td>👥 人际类</td><td>Friends · Family · Daily routine · Neighbors</td></tr>
+    <tr><td>📱 其他高频</td><td>Technology / Internet · Festivals / Celebrations · Pets / Animals · Photos</td></tr>
+  </table>
+  <p style="font-size:13px;color:#888;margin-top:6px;">练法：每道题准备 2-4 句话（15-20 秒），用「一句话直接回答 + 一个原因 + 一个例子」的结构，别背整段。</p>
+</div>
+
+<div class="card">
+  <h3>Part 2 常青题（4 大类 · 用母故事套）</h3>
+  <p style="font-size:13px;color:#888;margin-bottom:8px;">下面的题每一季都大概率保留，用你的 5 个母故事就能全部套。标🔥的是几乎必考的方向。</p>
+  <table>
+    <tr><th style="width:14%;">类型</th><th>常青话题</th><th>套哪个素材</th></tr>
+    <tr><td><strong>👤 人物</strong></td><td>🔥 影响你的人 · 敬佩的家人 · 想见的名人 · 童年好友</td><td>素材2 影响你的人</td></tr>
+    <tr><td><strong>📍 地点</strong></td><td>🔥 想去旅行的地方 · 家乡 / 特别的地方 · 安静的地方 · 想住的房子</td><td>素材1 一次旅行 / 素材5 一个地方</td></tr>
+    <tr><td><strong>🎁 物品</strong></td><td>🔥 学会的技能 · 影响你的书 · 收到的重要礼物 · 常用的东西</td><td>素材3 学会的技能</td></tr>
+    <tr><td><strong>⏳ 经历</strong></td><td>🔥 一次难忘的经历 · 克服的困难 · 一顿特别的饭 · 改变决定的一刻</td><td>素材4 一次挫折 / 素材1 一次旅行</td></tr>
+  </table>
+  <p style="font-size:13px;color:#888;margin-top:6px;">核心练法：只改开头 2 句 + 结尾 1 句，中间核心情节原封不动。准备时纸写 6-8 个关键词，不写句子。详见<a href="口语邪修手册.html" style="color:var(--accent);">口语手册</a>。</p>
+</div>
+
+<!-- ==================== 写作预测 ==================== -->
+<h2>✍️ 写作预测</h2>
+<div class="card">
+  <h3 style="margin-top:0;">Task 2 大作文高频预测（18 个方向）</h3>
+  <p>11 月写作最可能考的方向按概率排列：</p>
+  <table>
+    <tr><th>#</th><th>话题方向</th><th>热度</th><th>核心论点提示</th></tr>
+    <tr><td>1</td><td><strong>科技与远程办公/教育</strong></td><td><span class="prediction-badge hot">极高</span></td><td>远程办公利弊 / AI替代工作 / 科技与教育融合</td></tr>
+    <tr><td>2</td><td><strong>环境与可持续发展</strong></td><td><span class="prediction-badge hot">极高</span></td><td>塑料污染 / 气候变化 / 个人vs政府责任</td></tr>
+    <tr><td>3</td><td><strong>教育方式改革</strong></td><td><span class="prediction-badge hot">极高</span></td><td>标准化考试 / 职业教育vs学术教育 / 在线学习</td></tr>
+    <tr><td>4</td><td><strong>社交媒体与心理健康</strong></td><td><span class="prediction-badge warm">高</span></td><td>青少年焦虑 / 网络沉迷 / 虚拟社交vs现实社交</td></tr>
+    <tr><td>5</td><td><strong>城市生活与交通</strong></td><td><span class="prediction-badge warm">高</span></td><td>交通拥堵 / 市中心禁车 / 免费公交</td></tr>
+    <tr><td>6</td><td><strong>老龄化社会</strong></td><td><span class="prediction-badge warm">高</span></td><td>养老方式 / 延迟退休 / 老龄化利弊</td></tr>
+    <tr><td>7</td><td><strong>广告与消费主义</strong></td><td><span class="prediction-badge warm">高</span></td><td>广告影响儿童 / 追求名牌 / 过度消费</td></tr>
+    <tr><td>8</td><td><strong>犯罪与惩罚</strong></td><td><span class="prediction-badge warm">高</span></td><td>监狱vs教育 / 青少年犯罪 / 社区服务替代监禁</td></tr>
+    <tr><td>9</td><td><strong>动物保护</strong></td><td><span class="prediction-badge warm">高</span></td><td>动物实验 / 野生动物保护 / 素食主义</td></tr>
+    <tr><td>10</td><td><strong>太空探索</strong></td><td><span class="prediction-badge cool">中</span></td><td>太空投入是否值得 / 私企vs政府</td></tr>
+    <tr><td>11</td><td><strong>体育与健康</strong></td><td><span class="prediction-badge cool">中</span></td><td>体育赛事投入 / 危险运动 / 肥胖问题</td></tr>
+    <tr><td>12</td><td><strong>艺术与文化保护</strong></td><td><span class="prediction-badge cool">中</span></td><td>政府艺术拨款 / 传统vs现代建筑 / 博物馆</td></tr>
+    <tr><td>13</td><td><strong>性别平等</strong></td><td><span class="prediction-badge cool">中</span></td><td>家务分工 / 女性在军队 / 晚育趋势</td></tr>
+    <tr><td>14</td><td><strong>人际关系与社会</strong></td><td><span class="prediction-badge cool">中</span></td><td>社区感丧失 / 独立vs依赖 / 邻里关系</td></tr>
+    <tr><td>15</td><td><strong>媒体与新闻</strong></td><td><span class="prediction-badge cool">中</span></td><td>记者信任度 / 假新闻 / 媒体管控</td></tr>
+    <tr><td>16</td><td><strong>全球化</strong></td><td><span class="prediction-badge cool">中</span></td><td>文化同质化 / 全球贸易 / 移民</td></tr>
+    <tr><td>17</td><td><strong>工作与职业</strong></td><td><span class="prediction-badge cool">中</span></td><td>工作满意度vs稳定 / 年轻人择业 / 技能vs学位</td></tr>
+    <tr><td>18</td><td><strong>政府支出</strong></td><td><span class="prediction-badge cool">中</span></td><td>健康vs教育vs艺术 / 太空vs地面</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Task 1 小作文预测</h3>
+  <table>
+    <tr><th>题型</th><th>概率</th><th>准备重点</th></tr>
+    <tr><td><strong>柱状图 / 饼图</strong></td><td><span class="prediction-badge hot">~50%</span></td><td>对比多项数据，找出最值+趋势</td></tr>
+    <tr><td><strong>曲线图 / 表格</strong></td><td><span class="prediction-badge warm">~30%</span></td><td>时间变化+对比+极值</td></tr>
+    <tr><td><strong>流程图</strong></td><td><span class="prediction-badge cool">~10%</span></td><td>被动语态+顺序词+步骤描述</td></tr>
+    <tr><td><strong>地图题</strong></td><td><span class="prediction-badge cool">~10%</span></td><td>方位词+对比变迁+现在vs过去vs将来</td></tr>
+  </table>
+</div>
+
+<!-- ==================== 听力预测 ==================== -->
+<h2>👂 听力预测（场景概率）</h2>
+<div class="card">
+  <table>
+    <tr><th>Section</th><th>最可能场景</th><th>准备重点</th></tr>
+    <tr><td>S1</td><td>租房/旅游预订/求职/课程报名</td><td>名字拼读+数字日期+价格</td></tr>
+    <tr><td>S2</td><td>景点介绍/设施导览/活动说明</td><td>地图题方位词+选择题排除法</td></tr>
+    <tr><td>S3</td><td>学术讨论（作业/课题/论文）</td><td>多人对话→区分谁说了什么+观点转折</td></tr>
+    <tr><td>S4</td><td>学术讲座（环境/生物/历史/科技）</td><td>学术高频词拼写+因果逻辑</td></tr>
+  </table>
+</div>
+
+<!-- ==================== 阅读预测 ==================== -->
+<h2>📖 阅读预测</h2>
+<div class="card">
+  <h3 style="margin-top:0;">三篇文章最可能主题</h3>
+  <table>
+    <tr><th>Passage</th><th>高频主题方向</th></tr>
+    <tr><td>P1（科普/事实类）</td><td>动植物 / 科技发明 / 历史人物 / 地理现象</td></tr>
+    <tr><td>P2（社会/心理类）</td><td>教育心理 / 商业管理 / 语言学 / 社会学实验</td></tr>
+    <tr><td>P3（学术/理论类）</td><td>环境科学 / 神经科学 / 哲学思想 / 考古人类学</td></tr>
+  </table>
+  <p style="margin-top:8px;">阅读无法精确预测文章内容，但话题方向稳定。备考时泛读《经济学人》《国家地理》同类话题。</p>
+</div>
+
+<!-- ==================== 考试策略 ==================== -->
+<h2>🎯 11月21日考试注意事项</h2>
+<div class="card">
+  <div class="tip-box">
+    <h3 style="margin-top:0;">11 月考场策略</h3>
+    <ul>
+      <li><strong>口语时间：</strong>11月21日是纸笔考试日期，口语可能在 11月18日-24日之间（考前3天到考后3天），<strong>提前确认口语考试时间</strong>。</li>
+      <li><strong>9-12月换题季已稳定：</strong>你 11 月考，新题早已全部放出（9月中就稳定了），不用担心遇到没见过的题。但<strong>记得9月中去下载最新题库</strong>。</li>
+      <li><strong>11月不是暑假高峰：</strong>考生数量平稳，考官状态正常，<strong>稳定发挥比技巧更重要</strong>。</li>
+      <li><strong>纸笔vs机考：</strong>纸笔听力有10分钟誊答案时间，机考只有2分钟。提前确认你报的是哪种。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="card" style="text-align:center;margin-top:30px;">
+  <p style="font-size:1.2em;margin-bottom:12px;">🗂️ 回到仪表盘查看完整冲刺计划</p>
+  <a href="index.html" class="btn">🏠 返回仪表盘</a>
+</div>
+
+<hr>
+<p style="text-align:center;color:#555;font-size:12px;">
+  预测是帮你分配备考精力的工具，不是赌博。最高频的方向重点练，但不代表其他方向一定不考。<br>
+  全面覆盖 + 预测重点倾斜 = 最优策略。
+</p>
+
+</div>
+
+<script>
+// ===== 倒计时自动更新 =====
+(function() {
+  var examDate = new Date(2026, 10, 21); // 2026年11月21日
+  function update() {
+    var diff = examDate - new Date();
+    var days = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    var el = document.getElementById('pdDays');
+    if (el) el.textContent = days;
+  }
+  update();
+})();
+</script>
+
+</body>
+</html>

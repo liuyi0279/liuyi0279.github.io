@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="雅思备考">
+<meta name="theme-color" content="#0f0f14">
+<link rel="manifest" href="manifest.json">
+<title>雅思备考仪表盘 · 二战冲刺</title>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+<style>
+  :root {--bg:#0f0f14;--card:#1a1a24;--border:#2a2a3a;--text:#d0d0d8;--accent:#f0c040;--red:#e05555;--green:#55b880;--blue:#5599cc;--purple:#9966cc;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:15px}
+  .nav{position:sticky;top:0;z-index:100;background:#0a0a10;border-bottom:1px solid var(--border);padding:8px 0;text-align:center}
+  .nav a{color:var(--text);text-decoration:none;padding:5px 14px;margin:0 2px;border-radius:4px;font-size:13px;transition:all .2s}
+  .nav a:hover,.nav a.active{background:#2a2a3a;color:var(--accent)}
+  .container{max-width:1000px;margin:0 auto;padding:30px 20px 60px}
+  h1{font-size:2em;color:var(--accent);text-align:center;margin-bottom:8px}
+  h1.sub{font-size:1em;color:#888;font-weight:normal;margin-bottom:20px}
+  h2{font-size:1.3em;color:var(--accent);border-left:3px solid var(--accent);padding-left:12px;margin:32px 0 14px}
+  h3{font-size:1.05em;color:#ccc;margin:20px 0 8px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin:14px 0}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+  @media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+  th{background:#222230;color:var(--accent);padding:8px 10px;text-align:left;font-weight:600}
+  td{padding:7px 10px;border-bottom:1px solid #1a1a28}
+  tr:hover td{background:#1e1e2c}
+  .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-right:3px}
+  .tag-red{background:#3a1a1a;color:var(--red)}.tag-green{background:#1a3a1a;color:var(--green)}.tag-blue{background:#1a2a3a;color:var(--blue)}.tag-purple{background:#2a1a3a;color:var(--purple)}.tag-yellow{background:#3a3a1a;color:var(--accent)}
+  .highlight{background:#2a2a10;padding:1px 5px;border-radius:3px;color:var(--accent)}
+  .danger{background:#3a1a1a;padding:1px 5px;border-radius:3px;color:var(--red)}
+  .btn{display:inline-block;padding:10px 22px;background:var(--accent);color:#000;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;transition:all .2s}
+  .btn:hover{background:#f5d060;transform:translateY(-1px)}
+  .btn-sm{display:inline-block;padding:6px 14px;background:var(--accent);color:#000;border-radius:4px;text-decoration:none;font-weight:700;font-size:12px;margin:2px}
+  ul,ol{padding-left:18px}li{margin:3px 0}
+  hr{border:none;border-top:1px solid var(--border);margin:24px 0}
+  .countdown-big{text-align:center;font-size:2.8em;color:var(--accent);font-weight:700;padding:12px}
+  .countdown-big span{font-size:.35em;color:#888;display:block}
+  .stat-num{font-size:2em;font-weight:700;color:var(--accent)}
+  .stat-label{font-size:.75em;color:#888}
+  /* === 分数差距条 === */
+  .score-row{display:grid;grid-template-columns:150px 1fr;gap:6px 16px;align-items:center;margin:16px 0}
+  @media(max-width:640px){.score-row{grid-template-columns:1fr;gap:4px}}
+  .score-head{display:flex;align-items:center;gap:6px;font-weight:600;font-size:15px}
+  .score-track{position:relative;height:14px;background:#252532;border-radius:7px;overflow:visible}
+  .score-fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px 0 0 7px;min-width:2px}
+  .score-target{position:absolute;top:-3px;bottom:-3px;width:3px;background:#fff;border-radius:2px;opacity:.9}
+  .score-labels{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-top:5px}
+  /* === 技巧动作卡 === */
+  .action-list{list-style:none;padding:0;margin:0}
+  .action-list li{padding:10px 0 10px 28px;border-bottom:1px solid #1a1a28;position:relative}
+  .action-list li:last-child{border-bottom:none}
+  .action-list .n{position:absolute;left:0;top:10px;width:20px;height:20px;border-radius:10px;background:var(--accent);color:#000;text-align:center;line-height:20px;font-weight:700;font-size:12px}
+      /* === 编辑模式 === */
+      .editable-area[contenteditable="true"] {
+        border: 1px dashed var(--accent) !important; cursor: text; transition: all .2s;
+        border-radius: 4px; padding: 4px 8px; margin: -5px -9px; display: inline-block;
+      }
+      .editable-area[contenteditable="true"]:hover { background: #15151f; }
+      .editable-area[contenteditable="true"]:focus {
+        border-color: #f5d060 !important; box-shadow: 0 0 0 3px rgba(240,192,64,.12);
+        background: #181825; outline: none;
+      }
+      td.editable-area[contenteditable="true"] {
+        display: table-cell; margin: 0; padding: 4px 6px;
+      }
+      #dashboardEditBtn {
+        padding: 4px 12px; background: var(--card); color: var(--text); border: 1px solid var(--border);
+        border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 4px; transition: all .2s; font-family: inherit;
+      }
+      #dashboardEditBtn:hover { border-color: var(--accent); color: var(--accent); }
+      #dashboardEditBtn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+      #dashboardEditToolbar {
+        display: none; position: fixed; bottom: 24px; right: 24px; z-index: 999;
+        background: var(--card); border: 1px solid var(--accent); border-radius: 10px;
+        padding: 10px 16px; gap: 12px; align-items: center;
+        box-shadow: 0 6px 28px rgba(0,0,0,.55); font-size: 13px;
+      }
+      #dashboardEditToolbar.visible { display: flex; }
+      @media (max-width: 640px) {
+        #dashboardEditToolbar { bottom: 12px; right: 10px; padding: 8px 12px; gap: 8px; font-size: 12px; }
+      }
+  .subject-card{text-align:center;padding:18px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);transition:all .2s}
+  .subject-card:hover{border-color:var(--accent)}
+  .subject-card .icon{font-size:2.2em;margin-bottom:8px}
+  .subject-card .title{font-weight:700;margin-bottom:4px}
+  .subject-card .desc{font-size:12px;color:#888;line-height:1.5}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="active">🏠 仪表盘</a>
+  <a href="听力邪修手册.html">👂 听力</a>
+  <a href="阅读邪修手册.html">📖 阅读</a>
+  <a href="口语邪修手册.html">🗣️ 口语</a>
+  <a href="写作邪修手册.html">✍️ 写作</a>
+  <a href="词汇攻略.html">📝 词汇</a>
+  <a href="邪修技巧总汇.html">⚡ 邪修</a>
+  <a href="预测.html">🔮 预测</a>
+  <button id="dashboardEditBtn" onclick="window._dashboardToggleEdit()">✏️ 编辑</button>
+</nav>
+
+<div class="container">
+
+<!-- ===== 倒计时 ===== -->
+<h1>⚡ 雅思备考仪表盘 · 二战冲刺</h1>
+<h1 class="sub">11月21日 · 目标总分 7.0 · 单项不低于 6.0</h1>
+
+<div class="countdown-big" id="countdownDisplay">
+  <span id="countdownDays">--</span><span style="font-size:.6em">天</span>
+  <span>2026年11月21日 · 首考 5.5 → 二战 7.0</span>
+</div>
+
+<div class="card" style="background:#1a1a10;border-color:#3a3a20;text-align:center;padding:12px;">
+  <p style="margin:0;font-size:14px;">
+    <span style="color:var(--red);">🔴 三科没过 6.0 及格线：阅读(5.0)、听力(5.5)、口语(5.5)</span> &nbsp;|&nbsp;
+    <span style="color:var(--green);">✅ 写作(6.0)已达标，只保不攻</span>
+  </p>
+  <p style="margin:4px 0 0;font-size:12px;color:#888;">优先级：📖 阅读 &gt; 👂 听力 &gt; 🗣️ 口语 &gt; ✍️ 写作。工作日 2 小时主攻，周末 4 小时模考。</p>
+</div>
+
+<!-- ===== 使用指南 ===== -->
+<h2>🗺️ 这个仪表盘怎么看（30秒看懂）</h2>
+<div class="card" style="background:#1a1a14;border-color:#3a3a1a;">
+  <table>
+    <tr><th style="width:15%;">你要做什么</th><th style="width:30%;">打开哪个页面</th><th>里面有什么</th></tr>
+    <tr>
+      <td><strong>🏠 每天开始</strong></td>
+      <td><strong>本页（仪表盘）</strong><br><span style="font-size:12px;color:#888;">往下翻→看每日任务清单</span></td>
+      <td>倒计时 · 分数差距 · 今日优先级 · 阅读听力提分技巧 · 每日任务清单 · 阶段计划</td>
+    </tr>
+    <tr>
+      <td><strong>📖 学单科技巧</strong></td>
+      <td><strong>四科邪修手册</strong><br><span style="font-size:12px;color:#888;">导航栏点 👂📖🗣️✍️</span></td>
+      <td>每科核心技巧 · 题型攻略 · 陷阱识别 · 训练SOP。每页底部有"下一本"链接，可以四本连读</td>
+    </tr>
+    <tr>
+      <td><strong>📝 背单词</strong></td>
+      <td><strong>词汇攻略</strong><br><span style="font-size:12px;color:#888;">导航栏点 📝</span></td>
+      <td>22章优先级排序 · 哪些必须拼写哪些只认脸 · 每日25分钟SOP</td>
+    </tr>
+    <tr>
+      <td><strong>⚡ 考前快速回顾</strong></td>
+      <td><strong>邪修技巧总汇</strong><br><span style="font-size:12px;color:#888;">导航栏点 ⚡</span></td>
+      <td>四科48条技巧浓缩版 · 考官心理学 · 考前24小时清单</td>
+    </tr>
+    <tr>
+      <td><strong>🔮 考前一周</strong></td>
+      <td><strong>预测页</strong><br><span style="font-size:12px;color:#888;">导航栏点 🔮</span></td>
+      <td>口语Part 1必考+常青题 · 写作18大方向 · 听力阅读场景预测</td>
+    </tr>
+  </table>
+  <p style="margin-top:12px;font-size:14px;text-align:center;"><strong>简单说：每天来仪表盘领任务→点手册学技巧→去刷题→回来复盘。</strong>仪表盘管<span style="color:var(--accent);">"做什么"</span>，手册管<span style="color:var(--accent);">"怎么做"</span>，词汇管"背什么"，预测管"考什么"。</p>
+</div>
+
+<!-- ===== 分数差距 ===== -->
+<h2>📈 你的起点 → 目标（首考 5.5 → 二战 7.0）</h2>
+<div class="card">
+  <p style="font-size:14px;margin-bottom:6px;">每一行 = 一个科目。红色 = 还没过 6.0 及格线（优先攻），白色竖线 = 你的目标分。</p>
+  <p style="font-size:13px;color:var(--accent);margin-bottom:10px;">💡 总分 7.0 的算法：阅读 7.0 + 听力 7.0 + 写作 6.5 + 口语 6.5 = 27 ÷ 4 = 6.75 → 进位 <strong>7.0</strong>（且四科全 ≥ 6.0）</p>
+
+  <div class="score-row">
+    <div class="score-head">📖 阅读 <span class="tag tag-red">最大短板</span></div>
+    <div>
+      <div class="score-track">
+        <div class="score-fill" style="width:55.5%;background:var(--red);"></div>
+        <div class="score-target" style="left:77.8%;"></div>
+      </div>
+      <div class="score-labels"><span>当前 <strong style="color:var(--red);">5.0</strong></span><span>目标 <strong style="color:var(--green);">7.0</strong> · 差距 +2.0</span></div>
+    </div>
+  </div>
+
+  <div class="score-row">
+    <div class="score-head">👂 听力 <span class="tag tag-red">没过及格线</span></div>
+    <div>
+      <div class="score-track">
+        <div class="score-fill" style="width:61.1%;background:var(--red);"></div>
+        <div class="score-target" style="left:77.8%;"></div>
+      </div>
+      <div class="score-labels"><span>当前 <strong style="color:var(--red);">5.5</strong></span><span>目标 <strong style="color:var(--green);">7.0</strong> · 差距 +1.5</span></div>
+    </div>
+  </div>
+
+  <div class="score-row">
+    <div class="score-head">🗣️ 口语 <span class="tag tag-red">先过 6.0</span></div>
+    <div>
+      <div class="score-track">
+        <div class="score-fill" style="width:61.1%;background:var(--red);"></div>
+        <div class="score-target" style="left:72.2%;"></div>
+      </div>
+      <div class="score-labels"><span>当前 <strong style="color:var(--red);">5.5</strong></span><span>目标 <strong style="color:var(--green);">6.5</strong> · 差距 +1.0</span></div>
+    </div>
+  </div>
+
+  <div class="score-row">
+    <div class="score-head">✍️ 写作 <span class="tag tag-green">已过及格线</span></div>
+    <div>
+      <div class="score-track">
+        <div class="score-fill" style="width:66.7%;background:var(--accent);"></div>
+        <div class="score-target" style="left:72.2%;"></div>
+      </div>
+      <div class="score-labels"><span>当前 <strong style="color:var(--accent);">6.0</strong></span><span>目标 <strong style="color:var(--green);">6.5</strong> · 差距 +0.5</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-4" style="margin-bottom:20px;">
+  <div class="subject-card">
+    <div class="icon">👂</div>
+    <div class="title">听力</div>
+    <div class="desc">5.5 → 7.0<br>对 30 题</div>
+    <a href="听力邪修手册.html" class="btn-sm">听力手册 →</a>
+  </div>
+  <div class="subject-card">
+    <div class="icon">📖</div>
+    <div class="title">阅读</div>
+    <div class="desc">5.0 → 7.0<br>最大短板，优先攻</div>
+    <a href="阅读邪修手册.html" class="btn-sm">阅读手册 →</a>
+  </div>
+  <div class="subject-card">
+    <div class="icon">🗣️</div>
+    <div class="title">口语</div>
+    <div class="desc">5.5 → 6.5<br>先过 6.0 及格线</div>
+    <a href="口语邪修手册.html" class="btn-sm">口语手册 →</a>
+  </div>
+  <div class="subject-card">
+    <div class="icon">✍️</div>
+    <div class="title">写作</div>
+    <div class="desc">6.0 → 6.5<br>已达标，只保不攻</div>
+    <a href="写作邪修手册.html" class="btn-sm">写作手册 →</a>
+  </div>
+</div>
+
+<!-- ===== 四科核心心法 ===== -->
+<h2>🧠 四科一句话心法</h2>
+<div class="grid-2">
+  <div class="card">
+    <h3 style="margin-top:0;">👂 听力：蹲信号词，别试图听懂全文</h3>
+    <p style="font-size:14px;">答案 90% 在信号词（but / actually / however / because）后面 1-2 句。漏一题马上跳，死磕 = 连丢两题。填空题<strong>听到什么写什么</strong>，别自己改词。</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;">📖 阅读：先看题，再回文找答案</h3>
+    <p style="font-size:14px;">禁止通读全文。带题目关键词进文章当 GPS，找到同义替换就得分。你不是来读文章的，你是来做题的。</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;">🗣️ 口语：流利 &gt; 高级词汇</h3>
+    <p style="font-size:14px;">卡顿 = 扣分，自我纠正 = 二次扣分。4 个母故事串 40+ 道 Part 2 题，只改头尾。先把话说顺，再想升级词。</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;">✍️ 写作：结构 &gt; 内容</h3>
+    <p style="font-size:14px;">四段式 + PEEL 结构稳拿分。10 个正确简单句 &gt; 5 个错误复杂句。Task 2 写 260-280 词就够。</p>
+  </div>
+</div>
+
+<!-- ===== 阅读·听力提分核心动作 ===== -->
+<h2>🎯 阅读 · 听力提分核心动作（先做这些，别贪多）</h2>
+
+<div class="card">
+  <h3 style="margin-top:0;">📖 阅读 5.0 → 7.0 · 6 个核心动作</h3>
+  <ul class="action-list">
+    <li><span class="n">1</span><strong>先看题，后看文。</strong>打开试卷先翻到题目，圈出关键词（数字 / 人名 / 专有名词优先），带着关键词进文章找，别从头读到尾。</li>
+    <li><span class="n">2</span><strong>只读一遍文章，同时做 2-3 种顺序题</strong>（平行阅读法）。读到关键词就停下来做对应的题，读完一遍，填空题也差不多做完了。</li>
+    <li><span class="n">3</span><strong>选对定位词。</strong>数字 &gt; 人名地名 &gt; 专有名词 &gt; 具体名词。别用 development / impact 这种抽象词——文章一定会换说法。</li>
+    <li><span class="n">4</span><strong>T/F/NG 靠三步走，不靠感觉：</strong>① 找到定位句 → ② 是不是同一件事？不是 = NOT GIVEN → ③ 意思一致吗？一致 = TRUE，相反 = FALSE。</li>
+    <li><span class="n">5</span><strong>记住：考的是"换了个说法"（同义替换），不是"读懂"。</strong>题目和原文用同一个词，反而要警惕——那常常是干扰。</li>
+    <li><span class="n">6</span><strong>做题顺序：</strong>先填空 / 简答（顺序题、答案抄原文），最后做 Heading / 段落匹配（乱序题、最耗时）。<a href="阅读邪修手册.html" style="color:var(--accent);">全文技巧 →</a></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">👂 听力 5.5 → 7.0 · 6 个核心动作</h3>
+  <ul class="action-list">
+    <li><span class="n">1</span><strong>蹲信号词。</strong>听到 but / actually / however / especially，手就放到答题卡上——答案在后面 1-2 句，前面的都是干扰。</li>
+    <li><span class="n">2</span><strong>读题的 30 秒别发呆。</strong>圈定位词 + 判断空格填什么（数字？人名？时间？单数还是复数？）。预判越准，听到时反应越快。</li>
+    <li><span class="n">3</span><strong>精听 1 篇 &gt; 泛听 10 篇。</strong>逐句听写 → 用红笔标出所有信号词 → 跟读。坚持 7 天，效果远超刷 30 套题。</li>
+    <li><span class="n">4</span><strong>平时用 1.5 倍速练。</strong>练两周后，考场上正常语速就像慢放，每个词都听得清。</li>
+    <li><span class="n">5</span><strong>漏题 0.5 秒内跳过。</strong>跟丢了马上看下一题题干，笔尖跟着走。死磕 1 题 = 连丢 2 题。</li>
+    <li><span class="n">6</span><strong>填空题"所听即所得"。</strong>录音里是什么词就写什么词，别自己改写、别换词性，注意单复数和字数限制。<a href="听力邪修手册.html" style="color:var(--accent);">全文技巧 →</a></li>
+  </ul>
+</div>
+
+<!-- ===== 评分标准 ===== -->
+<h2>📊 听力 · 阅读评分速查（含 6 分档）</h2>
+<div class="card">
+  <table>
+    <tr><th>正确题数</th><th>分数</th><th>你可以错几题</th></tr>
+    <tr><td>23</td><td>6.0</td><td>17 题</td></tr>
+    <tr><td>26</td><td>6.5</td><td>14 题</td></tr>
+    <tr><td>30</td><td>7.0</td><td>10 题</td></tr>
+    <tr><td>33</td><td>7.5</td><td>7 题</td></tr>
+    <tr><td>35</td><td>8.0</td><td>5 题</td></tr>
+  </table>
+  <p style="font-size:12px;color:#888;margin-top:4px;">换算随卷子微调，这是约数。你现在的目标：<strong>从对 16 题（5.0）提到对 30 题（7.0）</strong>。</p>
+</div>
+
+<!-- ===== 阶段冲刺计划 ===== -->
+<h2>📅 <span class="countdown-auto">--</span>天冲刺计划（13 周 · 上班族版）</h2>
+
+<div class="card">
+  <h3 style="margin-top:0;"><span class="tag tag-yellow">Phase 1</span> 8/24 – 9/6（2 周）· 补基础 + 上轨道</h3>
+  <table>
+    <tr><th style="width:10%;">科目</th><th>每日任务</th><th style="width:8%;">时长</th></tr>
+    <tr><td>📖 阅读</td><td>每天 1 篇 Passage 精做（限时 18 分钟）+ 精析错题：定位句在哪？同义替换是什么？</td><td>45min</td></tr>
+    <tr><td>👂 听力</td><td>每天 1 个 Section 精听（听写 → 标信号词 → 跟读）+ 1.2 倍速入门</td><td>40min</td></tr>
+    <tr><td>🗣️ 口语</td><td>启动 4 个母故事，Part 1 前三道必考题练到脱口而出</td><td>35min</td></tr>
+    <tr><td>✍️ 写作</td><td>周末各 1 篇 Task 2，守住 6.0 不往下掉</td><td>周末</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;"><span class="tag tag-yellow">Phase 2</span> 9/7 – 10/4（4 周）· 提分主战场</h3>
+  <table>
+    <tr><th style="width:10%;">科目</th><th>每日任务</th><th style="width:8%;">时长</th></tr>
+    <tr><td>📖 阅读</td><td>每天 1 篇限时，主攻 T/F/NG + Heading，同义替换本积累到 80 组以上</td><td>45min</td></tr>
+    <tr><td>👂 听力</td><td>每天 1 个 Section 精听 + 提到 1.4 倍速，选择题 / 匹配题专项练</td><td>40min</td></tr>
+    <tr><td>🗣️ 口语</td><td>每天 Part 2 串题 1 道 + Part 3 练 3 道，周末全套模考一次</td><td>35min</td></tr>
+    <tr><td>✍️ 写作</td><td>周末各 1 篇 Task 2 + 1 篇 Task 1</td><td>周末</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;"><span class="tag tag-yellow">Phase 3</span> 10/5 – 11/1（4 周）· 冲刺 + 限时</h3>
+  <table>
+    <tr><th style="width:10%;">科目</th><th>每日任务</th><th style="width:8%;">时长</th></tr>
+    <tr><td>📖 阅读</td><td>周末各 1 套完整阅读（严格 60 分钟），工作日精析错题 + 攻弱项题型</td><td>45min</td></tr>
+    <tr><td>👂 听力</td><td>周末各 1 套完整听力（1.5 倍速），工作日精听复盘</td><td>40min</td></tr>
+    <tr><td>🗣️ 口语</td><td>隔天全套模考，4 个母故事练到脱口而出</td><td>35min</td></tr>
+    <tr><td>✍️ 写作</td><td>周末 Task 2 + Task 1 全套限时（60 分钟）</td><td>周末</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;"><span class="tag tag-yellow">Phase 4</span> 11/2 – 11/20（3 周）· 保温 + 预测 + 状态</h3>
+  <table>
+    <tr><th style="width:10%;">科目</th><th>每日任务</th><th style="width:8%;">时长</th></tr>
+    <tr><td>📖 阅读</td><td>隔天 1 套保持手感，看错题本 + 同义替换，考前 2 天不做新题</td><td>45min</td></tr>
+    <tr><td>👂 听力</td><td>隔天 1 套保持手感，复习拼写易错词，考前 3 天轻松听</td><td>40min</td></tr>
+    <tr><td>🗣️ 口语</td><td>隔天模考 + 刷 9-12 月预测话题</td><td>35min</td></tr>
+    <tr><td>✍️ 写作</td><td>看预测话题准备论点 + 回顾高频错误，考前 3 天只看不写</td><td>周末</td></tr>
+  </table>
+</div>
+
+<!-- ===== 每日任务清单 ===== -->
+<h2>✅ 每日任务清单（上班族 · 工作日 2 小时）</h2>
+
+<div class="card" style="background:#1a1a14;border-color:#3a3a1a;">
+  <h3 style="margin-top:0;color:var(--accent);">📌 你的时间账</h3>
+  <div class="grid-4" style="margin-top:8px;">
+    <div style="text-align:center;">
+      <div style="font-size:1.6em;color:var(--green);">2h</div>
+      <div style="font-size:12px;color:#888;">工作日 / 天</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:1.6em;color:var(--green);">4h</div>
+      <div style="font-size:12px;color:#888;">周末 / 天</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:1.6em;color:var(--accent);">≈18h</div>
+      <div style="font-size:12px;color:#888;">每周合计</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:1.6em;color:var(--accent);">13周</div>
+      <div style="font-size:12px;color:#888;">备考周期</div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:#888;margin-top:6px;">时间少，所以每天只主攻 3 件：阅读（最大短板）+ 听力 + 口语。写作已过 6.0，放周末保一保就行。</p>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">📋 工作日 2 小时模板（周一到周五 · 打钩执行）</h3>
+  <table>
+    <tr><th style="width:5%;">#</th><th style="width:10%;">科目</th><th>任务</th><th style="width:10%;">时长</th><th style="width:8%;">完成？</th></tr>
+
+    <tr style="background:#14141e;"><td colspan="5" style="color:var(--accent);font-weight:700;">🚌 通勤 / 碎片 · 20 分钟</td></tr>
+    <tr>
+      <td>☐</td><td>🗣️ 口语</td>
+      <td><strong>激活口腔</strong> — 大声说英语 20 分钟：念一个母故事、描述今天的计划，或者练 Part 1 前三道必考题。目的：让嘴巴先热起来。</td>
+      <td>20min</td><td></td>
+    </tr>
+
+    <tr style="background:#14141e;"><td colspan="5" style="color:var(--accent);font-weight:700;">🌙 下班后 · 1 小时 40 分钟 — 主攻阅读 + 听力</td></tr>
+    <tr>
+      <td>☐</td><td>📖 阅读</td>
+      <td><strong>1 篇 Passage 精做</strong> — 限时 18 分钟，用"先看题→找定位词→回文"的方法。做完精析错题：定位句在哪？同义替换是什么？为什么错？</td>
+      <td>45min</td><td></td>
+    </tr>
+    <tr>
+      <td>☐</td><td>👂 听力</td>
+      <td><strong>1 个 Section 精听</strong> — 做题 → 逐句听写 → 红笔标信号词 → 跟读。1.2 倍速起步，每 3 天提 0.1 倍。</td>
+      <td>40min</td><td></td>
+    </tr>
+    <tr>
+      <td>☐</td><td>🗣️ 口语</td>
+      <td><strong>录音 + 回听</strong> — 把今天说的内容录下来，睡前听一遍，不纠错，只习惯听自己说英语。</td>
+      <td>15min</td><td></td>
+    </tr>
+  </table>
+  <p style="font-size:12px;color:#888;margin-top:6px;">合计约 2 小时。写作不进工作日——周末集中处理。</p>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">📋 周末 4 小时模板（打钩执行）</h3>
+  <table>
+    <tr><th style="width:5%;">#</th><th style="width:10%;">科目</th><th>任务</th><th style="width:10%;">时长</th><th style="width:8%;">完成？</th></tr>
+
+    <tr style="background:#14141e;"><td colspan="5" style="color:var(--accent);font-weight:700;">🅰️ 周六 · 全真模考日</td></tr>
+    <tr>
+      <td>☐</td><td>👂📖</td>
+      <td><strong>全真模考</strong> — 听力 1 套 + 阅读 1 套，严格按考试流程和时间。</td>
+      <td>2h</td><td></td>
+    </tr>
+    <tr>
+      <td>☐</td><td>✍️ 写作</td>
+      <td><strong>Task 2 × 1</strong> — 限时 40 分钟，写完后对照范文自改。</td>
+      <td>1h</td><td></td>
+    </tr>
+    <tr>
+      <td>☐</td><td>🗣️ 口语</td>
+      <td><strong>全套模考</strong> — Part 1 + Part 2 + Part 3 完整走一遍，录音。</td>
+      <td>1h</td><td></td>
+    </tr>
+
+    <tr style="background:#14141e;"><td colspan="5" style="color:var(--accent);font-weight:700;">🅱️ 周日 · 复盘 + 补漏日</td></tr>
+    <tr>
+      <td>☐</td><td>📖📝</td>
+      <td><strong>复盘错题 + 同义替换</strong> — 把本周所有错题过一遍，同义替换记进替换本。</td>
+      <td>1h</td><td></td>
+    </tr>
+    <tr>
+      <td>☐</td><td>✍️ 写作</td>
+      <td><strong>Task 1 + Task 2 各 1 篇</strong> — 限时练习，对照范文。</td>
+      <td>1.5h</td><td></td>
+    </tr>
+    <tr>
+      <td>☐</td><td>🗣️ 口语</td>
+      <td><strong>Part 3 专项</strong> — 练 5 道，强制用"分类讨论"（一方面…另一方面…）。</td>
+      <td>1h</td><td></td>
+    </tr>
+    <tr>
+      <td>☐</td><td>📝 词汇</td>
+      <td><strong>背新词 20 个</strong> — 按词汇攻略的 Tier 顺序，只认意思不背拼写。</td>
+      <td>30min</td><td></td>
+    </tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>⏰ 你的一天长这样</h3>
+  <table>
+    <tr><th>时间</th><th>做什么</th><th>时长</th></tr>
+    <tr><td>🚌 通勤</td><td>口语激活（大声说英语）</td><td>20min</td></tr>
+    <tr><td>🌙 下班后</td><td>阅读 1 篇（45min）→ 听力精听（40min）→ 口语录音（15min）</td><td>1h40min</td></tr>
+    <tr><td>🛏️ 睡前</td><td>回听今天自己的口语录音</td><td>—</td></tr>
+  </table>
+  <p style="font-size:12px;color:#888;margin-top:6px;">工作日合计约 2 小时。写作不占用工作日，周末集中练。别追求"每天四科都碰"——时间不够，宁可每天把 3 件做好。</p>
+</div>
+
+<div class="card">
+  <h3>📊 13 周路线图（一屏看懂）</h3>
+  <table>
+    <tr><th>阶段</th><th>时间</th><th>重心</th><th>关键验收</th></tr>
+    <tr>
+      <td><strong>Phase 1</strong></td>
+      <td>8/24 – 9/6</td>
+      <td>阅读 / 听力方法入门 + 口语上轨道</td>
+      <td>阅读摸清弱项题型，听力信号词会标</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 2</strong></td>
+      <td>9/7 – 10/4</td>
+      <td>阅读 / 听力每天分项训练</td>
+      <td>阅读 ≥ 6.0，听力 ≥ 6.5</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 3</strong></td>
+      <td>10/5 – 11/1</td>
+      <td>周末全真模考 + 严格限时</td>
+      <td>阅读 / 听力稳定 30+/40 题</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 4</strong></td>
+      <td>11/2 – 11/20</td>
+      <td>保温 + 预测 + 状态调整</td>
+      <td>考前 3 天减量，保持手感</td>
+    </tr>
+  </table>
+  <p style="font-size:12px;color:#888;margin-top:6px;"><strong>核心理念：</strong>时间少，就集中打最短的板——阅读（5.0）和听力（5.5）先往上拉，口语每天固定练保住 6.0，写作周末保 6.0 冲 6.5。四科目标凑成总分 7.0。</p>
+</div>
+
+<div class="card" style="text-align:center;">
+  <p style="font-size:1.1em;color:var(--accent);"><strong>🔴 今天不做阅读，明天也不会做。现在就打开阅读手册，先学会"先看题后看文"，然后限时做第一篇。</strong></p>
+</div>
+
+<!-- ===== 资料清单 ===== -->
+<h2>📚 你在用的资料（只列你实际在用的）</h2>
+<div class="card">
+  <table>
+    <tr><th>#</th><th>资料</th><th>用途</th><th>怎么用</th></tr>
+    <tr><td>1</td><td><strong>剑雅真题 14-19</strong></td><td>听力 + 阅读唯一官方真题</td><td>周末全真模考用。工作日精听 / 精读拆开练</td></tr>
+    <tr><td>2</td><td><strong>真经 5</strong></td><td>阅读题型分项练习</td><td>Phase 1 练题型用，之后切剑雅练实战</td></tr>
+    <tr><td>3</td><td><strong>语料库（同桌英语）</strong></td><td>听力高频词听写</td><td>每天精听里穿插 10 分钟听写，错词记错词本</td></tr>
+    <tr><td>4</td><td><strong>词汇真经（22 章）</strong></td><td>阅读 + 听力 + 写作话题词汇</td><td>只背 Tier 1+2 八章，其余只认脸不背拼写</td></tr>
+    <tr><td>5</td><td><strong>当季口语题库（9-12 月）</strong></td><td>Part 1/2/3 话题预测</td><td>Phase 4 重点刷。新东方 / 雅思哥免费领</td></tr>
+    <tr><td>6</td><td><strong>Simon 写作范文 / 课程</strong></td><td>Task 2 结构范本 + Task 1 图表策略</td><td>周末写作时间看范文标 PEEL 结构 → 模仿写 → 对照改</td></tr>
+  </table>
+</div>
+
+<!-- ===== 底部导航 ===== -->
+<h2>🗂️ 全部手册入口</h2>
+<div class="grid-2" style="margin-top:12px;">
+  <a href="听力邪修手册.html" class="card" style="text-decoration:none;color:var(--text);display:block;">
+    <h3 style="margin-top:0;">👂 听力邪修手册</h3>
+    <p style="font-size:13px;color:#888;">信号词 · 预判 · 四大 Section · 陷阱 · 精听法</p>
+  </a>
+  <a href="阅读邪修手册.html" class="card" style="text-decoration:none;color:var(--text);display:block;">
+    <h3 style="margin-top:0;">📖 阅读邪修手册</h3>
+    <p style="font-size:13px;color:#888;">平行阅读法 · T/F/NG 必杀技 · 做题顺序 · 75 组同义替换</p>
+  </a>
+  <a href="口语邪修手册.html" class="card" style="text-decoration:none;color:var(--text);display:block;">
+    <h3 style="margin-top:0;">🗣️ 口语邪修手册</h3>
+    <p style="font-size:13px;color:#888;">4 个母故事串题 · 完整英文稿 · Part 1/2/3 模板</p>
+  </a>
+  <a href="写作邪修手册.html" class="card" style="text-decoration:none;color:var(--text);display:block;">
+    <h3 style="margin-top:0;">✍️ 写作邪修手册</h3>
+    <p style="font-size:13px;color:#888;">五大题型模板 · PEEL 公式 · 完整范文拆解</p>
+  </a>
+  <a href="词汇攻略.html" class="card" style="text-decoration:none;color:var(--text);display:block;">
+    <h3 style="margin-top:0;">📝 词汇攻略</h3>
+    <p style="font-size:13px;color:#888;">22 章优先级排序 · 分技能记忆策略</p>
+  </a>
+  <a href="邪修技巧总汇.html" class="card" style="text-decoration:none;color:var(--text);display:block;">
+    <h3 style="margin-top:0;">⚡ 邪修技巧总汇</h3>
+    <p style="font-size:13px;color:#888;">四科 48 条偏门技巧 · 考前 24 小时清单</p>
+  </a>
+  <a href="预测.html" class="card" style="text-decoration:none;color:var(--text);display:block;grid-column:1/-1;">
+    <h3 style="margin-top:0;">🔮 考试预测（11月21日 · 9-12月）</h3>
+    <p style="font-size:13px;color:#888;">口语 Part 1 必考 + 常青题 · 写作18大方向 · 听力阅读场景预测</p>
+  </a>
+</div>
+
+<hr>
+<p style="text-align:center;color:#555;font-size:12px;">
+  <strong style="color:var(--accent);">雅思是规则游戏——吃透规则再上场。</strong><br>
+  每天打开这个仪表盘，对照任务清单执行。<span id="footerDays">--</span>天后见分晓。
+</p>
+
+<script>
+// ===== 倒计时自动更新（只在午夜刷新，零浪费） =====
+(function() {
+  var examDate = new Date(2026, 10, 21); // 2026年11月21日 (月份从0开始)
+
+  function updateCountdown() {
+    var now = new Date();
+    var diff = examDate - now;
+    var days = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+
+    var cd = document.getElementById('countdownDays');
+    if (cd) cd.textContent = days;
+
+    var fd = document.getElementById('footerDays');
+    if (fd) fd.textContent = days;
+
+    var autos = document.querySelectorAll('.countdown-auto');
+    for (var i = 0; i < autos.length; i++) {
+      autos[i].textContent = days;
+    }
+
+    var mobileDays = document.querySelectorAll('[data-countdown]');
+    for (var j = 0; j < mobileDays.length; j++) {
+      mobileDays[j].textContent = days;
+    }
+
+    var phaseDayRefs = document.querySelectorAll('.phase-day-ref');
+    for (var k = 0; k < phaseDayRefs.length; k++) {
+      phaseDayRefs[k].textContent = days;
+    }
+
+    // 计算距离下一个午夜的毫秒数，到了再刷新一次
+    scheduleMidnightRefresh();
+  }
+
+  function scheduleMidnightRefresh() {
+    var now = new Date();
+    // 明天 00:00:00 的时间戳
+    var midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    var msUntilMidnight = midnight - now;
+    // 每天只在午夜跑一次
+    setTimeout(updateCountdown, msUntilMidnight);
+  }
+
+  updateCountdown();
+})();
+</script>
+
+</div>
+
+<script>
+// ===== 仪表盘编辑引擎 =====
+(function() {
+  var STORAGE_KEY = 'ielts_dashboard_edits_v2';
+  var editMode = false;
+  var edits = {};
+  var originals = {};
+  var saveTimer = null;
+
+  // 可编辑元素选择器：任务描述文字的 td, 卡片中的 p/li, 优先级提示等
+  var EDITABLE_SELECTOR = '.card td:not(:first-child):not(:last-child), .card p, .card li, h1.sub';
+
+  try { edits = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { edits = {}; }
+
+  function init() {
+    var items = document.querySelectorAll(EDITABLE_SELECTOR);
+    items.forEach(function(el, i) {
+      // Skip nav, links, buttons, very short text
+      var text = (el.textContent || '').trim();
+      if (text.length < 8) return;
+      if (el.closest('nav')) return;
+      if (el.querySelector('a, button, input')) return;
+
+      var key = 'db_' + i;
+      el.setAttribute('data-edit-key', key);
+      if (!el.classList.contains('editable-area')) {
+        el.classList.add('editable-area');
+      }
+      originals[key] = el.innerHTML;
+
+      if (edits[key] && edits[key] !== originals[key]) {
+        el.innerHTML = edits[key];
+      }
+
+      el.addEventListener('input', function() {
+        clearTimeout(saveTimer);
+        var self = this;
+        saveTimer = setTimeout(function() {
+          edits[self.getAttribute('data-edit-key')] = self.innerHTML;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(edits));
+          var s = document.getElementById('dashboardSaveStatus');
+          if (s) { s.textContent = '✓ 已保存'; s.style.color = 'var(--green)'; }
+        }, 800);
+      });
+    });
+  }
+
+  window._dashboardToggleEdit = function() {
+    editMode = !editMode;
+    var items = document.querySelectorAll('.editable-area');
+    items.forEach(function(el) {
+      el.contentEditable = editMode ? 'true' : 'false';
+    });
+
+    var btn = document.getElementById('dashboardEditBtn');
+    if (btn) {
+      btn.textContent = editMode ? '🔒 退出编辑' : '✏️ 编辑';
+      if (editMode) btn.classList.add('active'); else btn.classList.remove('active');
+    }
+
+    var tb = document.getElementById('dashboardEditToolbar');
+    if (tb) {
+      if (editMode) tb.classList.add('visible'); else tb.classList.remove('visible');
+    }
+  };
+
+  window._dashboardReset = function() {
+    if (confirm('确定重置仪表盘所有编辑吗？')) {
+      localStorage.removeItem(STORAGE_KEY);
+      edits = {};
+      Object.keys(originals).forEach(function(key) {
+        var el = document.querySelector('[data-edit-key="' + key + '"]');
+        if (el) el.innerHTML = originals[key];
+      });
+    }
+  };
+
+  // Toolbar
+  var tb = document.createElement('div');
+  tb.id = 'dashboardEditToolbar';
+  tb.innerHTML = '<span id="dashboardSaveStatus" style="font-size:12px;"></span>' +
+    '<button onclick="window._dashboardReset()" style="padding:5px 12px;background:#2a1010;color:var(--red);border:1px solid #4a1a1a;border-radius:4px;cursor:pointer;font-size:12px;">🔄 恢复</button>';
+  document.body.appendChild(tb);
+
+  init();
+  console.log('仪表盘编辑引擎已就绪');
+})();
+</script>
+
+</body>
+</html>
